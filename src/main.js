@@ -1,11 +1,9 @@
 import './styles/style.css'
 import {container , charger, pageCharger} from  './components/element.js'
-// import javascriptLogo from './javascript.svg'
-// import viteLogo from '/vite.svg'
-// import { setupCounter } from './counter.js'
 import { createElement, afficherMessageAlert ,dagayeKhar} from './components/componant.js'
 import { formSection } from './components/sousElements/pageDeConnexion.js'
 import { contact,section2 } from './components/sousElements/section2.js'
+// import { contact } from './components/ui.js'
 
 document.querySelector('body').appendChild(container)
 
@@ -73,17 +71,31 @@ if (btnSeConecter) {
 
 
 
-const contacts = [];
+const contacts1 = [
+];
+const contacts = [
+];
 
+console.log('okokkkkk');
+console.log(contacts);
+console.log('okokkkkk');
 // Charger les utilisateurs depuis l'API JSON Server
 fetch('http://localhost:3000/users')
     .then(response => response.json())
     .then(data => {
+        console.log('okokkkkk');
+        console.log(data);
+        console.log('okokkkkk');
+        
         // On remplit le tableau contacts avec les utilisateurs reçus
         contacts.push(...data);
-        console.log("Utilisateurs chargés :", contacts);
 
-        afficherContacts(); // fonction que tu dois créer
+        console.log('okokkkkk');
+        console.log(contacts);
+        console.log('okokkkkk');
+        
+
+        afficherContacts();
     })
     .catch(error => {
         console.error("Erreur de chargement des utilisateurs :", error);
@@ -91,12 +103,19 @@ fetch('http://localhost:3000/users')
     });
 
 
-function afficherContacts(){
+// console.log('ok');
+// console.log(contacts);
+// console.log('ok');
+
+
+
+const afficherContacts = () => {
     const c = contacts.length
     for (let i = 0; i < c ; i++ ){
         contacts.push(contact( contacts[i] ))
     }
     const mesContacts = createElement('div', {
+        id:'mesContacts',
         class: ' h-3/4 overflow-scroll'
     }, contacts);
 
@@ -111,6 +130,7 @@ if (s2Icon3points) {
     s2Icon3points.addEventListener('click', () => {
         const popupMenu = document.getElementById('popupMenu');
         popupMenu.classList.toggle('hidden');
+        // popupMenu.classList.remove('hidden');
     });
 }
 console.log(s2Icon3points);
@@ -119,6 +139,57 @@ console.log(s2Icon3points);
 const nouveauContact = document.querySelector('#nouveauContact');
 if (nouveauContact) {
     nouveauContact.addEventListener('click', () => {
-        alerter('nouveau contact');
+        // alert('nouveau contact');
     });
 }
+console.log(nouveauContact);
+
+
+const inputNomContact = document.querySelector('#inputNomContact').value;
+const inputPrenom = document.querySelector('#inputPrenom').value;
+const inputNumber = document.querySelector('#number');
+dagayeKhar(inputNumber)
+// setTimeout(() => {
+    
+    const btnAjouter = document.querySelector('#btnAjouter');
+    console.log(btnAjouter);
+    
+    if (btnAjouter) {
+        btnAjouter.addEventListener('click', () => {
+
+            if (true) {
+                const newContact = {
+                    Nom: inputNomContact,
+                    Prenom: inputPrenom,
+                    dure: 'dure',
+                    heurNotif: '17:23',
+                    nomLue: '4',
+                    image: '/profile2.png' // Remplacez par l'URL de l'image appropriée
+                };
+
+
+
+                // console.log('ok');
+                // console.log(contacts);
+                // console.log('ok');
+                
+                // contacts.push(newContact); // Ajouter le nouveau contact au tableau contacts
+
+                // console.log('ok');
+                // console.log(contacts);
+                // console.log('ok');
+
+                // Ajouter le nouveau contact à la section2
+                const contactElement = contact(newContact);
+                document.querySelector('#mesContacts').appendChild(contactElement);
+    
+                // Réinitialiser les champs du formulaire
+                document.querySelector('#inputNomContact').value = '';
+                document.querySelector('#inputPrenom').value = '';
+                document.querySelector('#number').value = '';
+            } else {
+                alert('Veuillez remplir tous les champs');
+            }
+        });
+    }
+// }, 0);

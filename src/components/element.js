@@ -9,7 +9,7 @@ export let pageCharger = [];
 
 
 export function charger( x = false) {
-    if (x) {
+    if (!x) {
         pageCharger = [
             section1,
             section2,
@@ -26,5 +26,5 @@ charger()
 
 export const container = createElement('div',{
         id : "container" ,
-        class : "bg-slate-950 w-5/6 h-5/6 fji "
+        class : "bg-[#161717] w-5/6 h-5/6 fji "
     },pageCharger)

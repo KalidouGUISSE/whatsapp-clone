@@ -20,7 +20,7 @@ const parentDivRontPourIcon2 = createElement('div',{
 
 
 export const section1 = createElement('section',{
-        class: " w-24 h-full flex flex-col gap-5 justify-between"
+        class: "bg-[#1D1F1F] w-24 h-full flex flex-col gap-5 justify-between"
     },[
         parentDivRontPourIcon1,
         parentDivRontPourIcon2

@@ -98,7 +98,7 @@ export function createElement(tag, props = {}, content = "") {
 
 export function createDivRontPourIcon (){
     return createElement ('div', {
-        class :"text-white div-ront-pour-icon fji cursor-pointer"
+        class :"text-[#868787] div-ront-pour-icon fji cursor-pointer"
     })
 }
 

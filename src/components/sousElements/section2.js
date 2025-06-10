@@ -2,12 +2,49 @@ import { createElement,createDivRontPourIcon } from '../componant.js'
 
 const popupMenu = createElement('div', {
     id: 'popupMenu',
-    class: 'absolute top-16 right-4 bg-white shadow-lg rounded-lg p-2 text-black hidden z-50'
+    class: 'absolute top-16 right-4 bg-white shadow-lg rounded-lg p-2 text-black hidden z-50 '
 }, [
-    createElement('div', { id: 'nouveauContact' , class: 'hover:bg-gray-200 p-2 cursor-pointer' }, 'Nouveau groupe'),
-    createElement('div', { class: 'hover:bg-gray-200 p-2 cursor-pointer' }, 'Nouveau contact'),
+    createElement('div', { id: 'nouveauContact' , class: 'hover:bg-gray-200 p-2 cursor-pointer' }, 'Nouveau contact'),
+    createElement('div', { class: 'hover:bg-gray-200 p-2 cursor-pointer' }, 'Nouveau groupe'),
     createElement('div', { class: 'hover:bg-gray-200 p-2 cursor-pointer' }, 'Paramètres')
 ]);
+
+
+const popupFormulaire = createElement('div',{
+    class: ' absolute top-16 right-4 bg-white shadow-lg rounded-lg p-2 hidden'
+},[
+    createElement('div', { class: 'text-black' }, 'Formulaire de contact'),
+    createElement('form', { class: 'text-black' }, [
+        createElement('input', {
+            id: 'inputNomContact',
+            type: 'text',
+            placeholder: 'Nom',
+            // value: 'sdf',
+            class: 'w-full mb-2 p-1 border rounded'
+        }),
+        createElement('input', {
+            id: 'inputPrenom',
+            type: 'text',
+            placeholder: 'Prénom',
+            class: 'w-full mb-2 p-1 border rounded'
+        }),
+        createElement('input', {
+            id: 'number',
+            type: 'text',
+            placeholder: 'numéro de téléphone',
+            class: 'w-full mb-2 p-1 border rounded'
+        }),
+        createElement('button', {
+            id: 'btnAjouter',
+            type: 'button',
+            class: 'bg-blue-500 text-white p-2 rounded hover:bg-blue-600'
+        }, 'Ajouter')
+    ])
+])
+
+
+
+
 
 const div1Enfant1 = createElement('div',{
         class : "relative bg--500 h-1/3 justify-between fji text-white"
@@ -20,19 +57,21 @@ const div1Enfant1 = createElement('div',{
                 class:"fa-solid fa-ellipsis-vertical",
             }),
         ]),
-        popupMenu
+        popupMenu,
+        popupFormulaire
     ])
 
 const div2Enfant1 = createElement('div',{
     class : "bg--500 h-1/3 flex flex-col justify-end "
 },[
     createElement('input',{
-        class : 'w-full h-12 rounded-full pl-4'
+        class: 'w--full h-12 rounded-full pl-4 focus:outline-none bg-[#242626] text-gray-400 placeholder-gray-400 shadow-sm transition duration-200 ease-in-out',
+        placeholder: 'Rechercher',
     })
 ])
 
 const div3Enfant1 =  createElement('div',{
-    class : "bg--500 h-1/3 w-full flex items-center text-white"
+    class : "bg--500 h-1/3 w-full flex items-center text-white gap-2"
 },[
     createElement('div',{class:'s2DivEnfant3'}, 'Toutes' ),
     createElement('div',{class:'s2DivEnfant3'}, 'Nom lue' ),
@@ -41,7 +80,7 @@ const div3Enfant1 =  createElement('div',{
 ])
 
 const enfant1 = createElement('div',{
-    class : "border-b-2 h-1/4 w-full "
+    class : " h-1/4 w-full "
 },[
     div1Enfant1,
     div2Enfant1,
@@ -57,23 +96,10 @@ const enfant1 = createElement('div',{
 //     }, Array.from({ length: 6 }, contact));
 
 export const section2 = createElement('section',{
-    class : " bg--500 w-2/5 h-full pl-3 pr-3 border"
+    class : " w-2/5 h-full pl-3 pr-3 border border-gray-300/30 "
 },[
     enfant1
 ])
-
-
-
-
-// Menu popup caché au départ
-
-
-// document.body.appendChild(popupMenu);
-
-
-
-
-
 
 
 
@@ -106,10 +132,55 @@ export function contact(contact){
     ])
 
     return createElement('div',{
-        class : "border mt-2 text-white p-2 rounded-lg h-24 flex items-center cursor-pointer hover:bg-gray-500"
+        class : "text-white p-2 rounded-lg h-24 flex items-center cursor-pointer hover:bg-[#292A2A] "
     },[
         photoContact,
         d2,
         date
     ])
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+document.addEventListener('click', (event) => {
+    const target = event.target;
+    const isIcon3points = target.closest('#s2Icon3points');
+
+    // if (isIcon3points) {
+    //     event.stopPropagation();
+    //     popupMenu.classList.toggle('hidden');
+    //     popupFormulaire.classList.add('hidden'); // Assurez-vous que le formulaire est caché
+    // } else if (!popupMenu.contains(target)) {
+    //     popupMenu.classList.add('hidden');
+    // }
+    
+    const isNouveauContact = target.closest('#nouveauContact');
+    if (isNouveauContact) {
+        popupFormulaire.classList.toggle('hidden');
+        popupMenu.classList.add('hidden'); // Assurez-vous que le menu est caché
+    } else if (!popupFormulaire.contains(target)) {
+        popupFormulaire.classList.add('hidden');
+    }
+})
+
