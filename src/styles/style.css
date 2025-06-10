@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .fji {
+    @apply flex justify-center items-center
+  }
+  .div-ront-pour-icon {
+    @apply size-12 rounded-full hover:bg-gray-500 
+  }
+  .div-sec1-2{
+    @apply fji gap-1 flex-col justify-evenly
+  }
+  .s2DivEnfant3{
+    @apply h-10 w-1/6 border rounded-full fji hover:bg-black cursor-pointer
+  }
+}
+

@@ -1,0 +1,34 @@
+{
+    "users":[
+        {
+            "id": "1" , 
+            "Nom": "GUISSE" , 
+            "Prenom": "Kalidou" , 
+            "nomLue": "12", 
+            "heurNotif" : "7:41", 
+            "dure":"dure",
+            "image": "/profile2.png",
+            "contacs":[]
+        },
+        {
+            "id": "2" , 
+            "Nom": "Fall" , 
+            "Prenom": "Ibou" , 
+            "nomLue": "1", 
+            "heurNotif" : "17:23", 
+            "dure":"dure",
+            "image": "/profile2.png",
+            "contacs":[]
+        },
+        {
+            "id": "3" , 
+            "Nom": "Mbaye" , 
+            "Prenom": "Fatou" , 
+            "nomLue": "4", 
+            "heurNotif" : "12:03", 
+            "dure":"dure",
+            "image": "/profile2.png",
+            "contacs":[]
+        }
+    ]
+}
