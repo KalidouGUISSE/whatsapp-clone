@@ -80,7 +80,7 @@ console.log('okokkkkk');
 console.log(contacts);
 console.log('okokkkkk');
 // Charger les utilisateurs depuis l'API JSON Server
-fetch('http://192.168.1.11:4025/users')
+fetch('http://localhost:4025/users')
     .then(response => response.json())
     .then(data => {
         // On remplit le tableau contacts avec les utilisateurs reçus
@@ -90,7 +90,7 @@ fetch('http://192.168.1.11:4025/users')
     })
     .catch(error => {
         console.error("Erreur de chargement des utilisateurs :", error);
-        alert('Erreur de chargement des utilisateurs')
+        alert('Erreur de chargement des utilisateurs depuis ')
     });
 
 
