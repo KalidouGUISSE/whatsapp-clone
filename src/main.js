@@ -5,6 +5,8 @@ import { formSection } from './components/sousElements/pageDeConnexion.js'
 import { contact,section2 } from './components/sousElements/section2.js'
 // import { contact } from './components/ui.js'
 
+const url = "https://whatsapp-back-djjl.onrender.com"
+
 document.querySelector('body').appendChild(container)
 
 
@@ -80,7 +82,8 @@ console.log('okokkkkk');
 console.log(contacts);
 console.log('okokkkkk');
 // Charger les utilisateurs depuis l'API JSON Server
-fetch('http://localhost:4025/users')
+// fetch('http://localhost:4025/users')
+fetch( url+'/users')
     .then(response => response.json())
     .then(data => {
         // On remplit le tableau contacts avec les utilisateurs reçus
