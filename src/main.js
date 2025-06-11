@@ -80,20 +80,11 @@ console.log('okokkkkk');
 console.log(contacts);
 console.log('okokkkkk');
 // Charger les utilisateurs depuis l'API JSON Server
-fetch('http://localhost:3000/users')
+fetch('http://192.168.1.11:4025/users')
     .then(response => response.json())
     .then(data => {
-        console.log('okokkkkk');
-        console.log(data);
-        console.log('okokkkkk');
-        
         // On remplit le tableau contacts avec les utilisateurs reçus
         contacts.push(...data);
-
-        console.log('okokkkkk');
-        console.log(contacts);
-        console.log('okokkkkk');
-        
 
         afficherContacts();
     })
