@@ -2,7 +2,7 @@ import './styles/style.css'
 import {container , charger, pageCharger} from  './components/element.js'
 import { createElement, afficherMessageAlert ,dagayeKhar} from './components/componant.js'
 import { formSection } from './components/sousElements/pageDeConnexion.js'
-import { section2 ,contact,popupPourContact } from './components/sousElements/section2.js'
+import { section2 ,contact } from './components/sousElements/section2.js'
 // import { contact } from './components/ui.js'
 
 const url = "https://whatsapp-back-djjl.onrender.com"
@@ -106,9 +106,11 @@ console.log(nouveauContact);
 
 
 
+
+
+
+
 // Ajouter contact
-
-
 // setTimeout(() => {
 const inputNumber = document.querySelector('#number');
 dagayeKhar(inputNumber)
@@ -134,45 +136,35 @@ if (btnAjouter) {
                 numero: inputNumber.value,
                 messages : []
             };
-            
-            // // Ajouter le nouveau contact à la section2
-            // const contactElement = contact(newContact);
-            // document.querySelector('#mesContacts').appendChild(contactElement);
-
-            // // Réinitialiser les champs du formulaire
-            // document.querySelector('#inputNomContact').value = '';
-            // document.querySelector('#inputPrenom').value = '';
-            // document.querySelector('#number').value = '';
-
-
-
-
 
              // Envoi POST à JSON Server
-        fetch('http://localhost:4025/users', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(newContact)
-        })
-        .then(response => response.json())
-        .then(data => {
-            console.log('Contact ajouté avec succès :', data);
+            fetch('http://localhost:4025/users', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(newContact)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Contact ajouté avec succès :', data);
 
-            // Ajout visuel dans le DOM
-            const contactElement = contact(data); // data contient maintenant l’ID généré
-            document.querySelector('#mesContacts').appendChild(contactElement);
+                // Ajout visuel dans le DOM
+                const contactElement = contact(data); // data contient maintenant l’ID généré
+                const mesContacts = document.querySelector('#mesContacts');
+                mesContacts.appendChild(contactElement);
+                document.querySelector('#popupFormulaire').classList.add('hidden');
+                afficherMessageAlert('success','Contact ajouté avec succès',mesContacts)
 
-            // Réinitialiser les champs
-            document.querySelector('#inputNomContact').value = '';
-            document.querySelector('#inputPrenom').value = '';
-            document.querySelector('#number').value = '';
-        })
-        .catch(error => {
-            console.error('Erreur lors de l’ajout du contact :', error);
-            alert('Erreur lors de l’ajout du contact.');
-        });
+                // Réinitialiser les champs
+                document.querySelector('#inputNomContact').value = '';
+                document.querySelector('#inputPrenom').value = '';
+                document.querySelector('#number').value = '';
+            })
+            .catch(error => {
+                console.error('Erreur lors de l’ajout du contact :', error);
+                alert('Erreur lors de l’ajout du contact.');
+            });
 
         } else {
             alert('Veuillez remplir tous les champs');
@@ -180,3 +172,67 @@ if (btnAjouter) {
     });
 }
 // }, 0);
+
+
+
+
+
+
+
+
+const nouveauGroupe = document.querySelector('#nouveauGroupe');
+if (nouveauGroupe){
+    nouveauGroupe.addEventListener('click', () => {
+        const popupFormGroupe = document.querySelector('#popupFormGroupe');
+        document.querySelector('#popupMenu').classList.add('hidden'); 
+        popupFormGroupe.classList.remove('hidden');
+    });
+}
+
+const btnAddGroupe = document.querySelector('#btnAddGroupe');
+if (btnAddGroupe) {
+    btnAddGroupe.addEventListener('click', () => {
+        alert('Ajouter un groupe');
+        const inputNomGroupe = document.querySelector('#inputNomGroupe').value;
+        if (inputNomGroupe) {
+            const newGroupe = {
+                id: Date.now().toString(),
+                Nom: inputNomGroupe,
+                image: '/profile2.png',
+                membres: [],
+                Admin: 'guisse', // Tu peux remplacer ça par un utilisateur connecté par ex.
+                messages: []
+            };
+        
+            // Envoi POST vers JSON Server
+            fetch('http://localhost:4025/users', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(newGroupe)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('✅ Groupe ajouté avec succès :', data);
+        
+                // Ajout visuel dans le DOM (si tu as une fonction groupe(data), comme pour contact)
+                const groupeElement = contact(data); // data contient maintenant l’ID généré
+                document.querySelector('#mesContacts').appendChild(groupeElement);
+
+
+                // Réinitialiser le champ du formulaire
+                document.querySelector('#inputNomGroupe').value = '';
+                document.querySelector('#popupFormGroupe').classList.add('hidden');
+                afficherMessageAlert('success','Groupe ajouté avec succès',document.querySelector('#mesContacts'));
+            })
+            .catch(error => {
+                console.error('❌ Erreur lors de l’ajout du groupe :', error);
+                alert('Erreur lors de l’ajout du groupe.');
+            });
+        
+        } else {
+            alert('Veuillez entrer un nom de groupe.');
+        }
+    });
+}

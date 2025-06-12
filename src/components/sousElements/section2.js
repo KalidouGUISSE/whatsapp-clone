@@ -1,56 +1,5 @@
-import { createElement,createDivRontPourIcon } from '../componant.js'
-
-const popupMenu = createElement('div', {
-    id: 'popupMenu',
-    class: 'absolute top-16 right-4 bg-white shadow-lg rounded-lg p-2 text-black hidden z-50 '
-}, [
-    createElement('div', { id: 'nouveauContact' , class: 'hover:bg-gray-200 p-2 cursor-pointer' }, 'Nouveau contact'),
-    createElement('div', { class: 'hover:bg-gray-200 p-2 cursor-pointer' }, 'Nouveau groupe'),
-    createElement('div', { class: 'hover:bg-gray-200 p-2 cursor-pointer' }, 'Paramètres')
-]);
-
-
-const popupFormulaire = createElement('div',{
-    class: ' absolute top-16 right-4 bg-white shadow-lg rounded-lg p-2 hidden'
-},[
-    createElement('div', { class: 'text-black' }, 'Formulaire de contact'),
-    createElement('form', { class: 'text-black' }, [
-        createElement('input', {
-            id: 'inputNomContact',
-            type: 'text',
-            placeholder: 'Nom',
-            // value: 'sdf',
-            class: 'w-full mb-2 p-1 border rounded'
-        }),
-        createElement('input', {
-            id: 'inputPrenom',
-            type: 'text',
-            placeholder: 'Prénom',
-            class: 'w-full mb-2 p-1 border rounded'
-        }),
-        createElement('input', {
-            id: 'number',
-            type: 'text',
-            placeholder: 'numéro de téléphone',
-            class: 'w-full mb-2 p-1 border rounded'
-        }),
-        createElement('button', {
-            id: 'btnAjouter',
-            type: 'button',
-            class: 'bg-blue-500 text-white p-2 rounded hover:bg-blue-600'
-        }, 'Ajouter')
-    ])
-])
-
-
-export const popupPourContact = createElement('div',{
-    id: 'popupPourContact',
-    class: 'absolute top-16 right-4 bg-white shadow-lg rounded-lg p-2 hidden z-50'
-},[
-    createElement('div', { class: 'text-black' }, 'Contact Options'),
-    createElement('div',{ id:'supprimer', class: 'text-black p-2 hover:text-red-500 cursor-pointer'},'Supprimer')
-])
-
+import { createElement,createDivRontPourIcon,afficherMessageAlert } from '../componant.js'
+import { popupMenu, popupFormulaire, popupPourContact,popupFormGroupe } from './mesPoppup.js';
 
 const div1Enfant1 = createElement('div',{
         class : "relative bg--500 h-1/3 justify-between fji text-white"
@@ -65,7 +14,8 @@ const div1Enfant1 = createElement('div',{
         ]),
         popupMenu,
         popupFormulaire,
-        popupPourContact
+        popupPourContact,
+        popupFormGroupe,
     ])
 
 const div2Enfant1 = createElement('div',{
@@ -122,12 +72,25 @@ export function contact(contact){
             class: 'h-16 w-16 rounded-full border border-gray-300 object-cover'
         })
     ])
-    const d2 = createElement('div',{
-        class: ' w-64 h-16 flex flex-col justify-around '
-    },[
-        createElement('div',{},contact.Prenom + ' ' +contact.Nom),
-        createElement('div',{},contact.numero)
-    ]);
+
+    let d2 = null;
+    if (contact.Prenom && contact.Nom) {
+        d2 = createElement('div',{
+            class: ' w-64 h-16 flex flex-col justify-around '
+        },[
+            createElement('div',{},contact.Prenom + ' ' +contact.Nom),
+            createElement('div',{},contact.numero)
+        ]);
+
+    } else {
+        d2 = createElement('div',{
+            class: ' w-64 h-16 flex flex-col justify-around '
+        },[
+            createElement('div',{},'' +contact.Nom),
+            createElement('div',{},contact.numero)
+        ]);
+    }
+
 
     const date = createElement('div',{
         class: ' w-1/5 h-16 flex flex-col justify-around fji'
@@ -166,7 +129,9 @@ function menuCotacte(contact) {
         const nouveauSupprimer = document.querySelector('#supprimer');
 
         nouveauSupprimer.addEventListener('click', () => {
-            alert('Supprimer contact');
+            // alert('Supprimer contact');
+            const mesContacts = document.querySelector('#mesContacts');
+            afficherMessageAlert('error',` ${contact.Nom}  Supprimer `,mesContacts)
 
             // Supprimer du DOM
             const contactElement = document.querySelector(`#id_${contact.id}`);
@@ -208,9 +173,14 @@ document.addEventListener('click', (event) => {
 
     if (isNouveauContact) {
         popupFormulaire.classList.toggle('hidden');
-        popupMenu.classList.add('hidden'); // Cache le menu
+        popupMenu.classList.add('hidden'); 
     } else if (!popupFormulaire.contains(target)) {
         popupFormulaire.classList.add('hidden');
     }
+
+    
+
+
 });
+
 
