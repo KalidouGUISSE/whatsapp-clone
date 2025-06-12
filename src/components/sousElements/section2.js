@@ -43,7 +43,13 @@ const popupFormulaire = createElement('div',{
 ])
 
 
-
+export const popupPourContact = createElement('div',{
+    id: 'popupPourContact',
+    class: 'absolute top-16 right-4 bg-white shadow-lg rounded-lg p-2 hidden z-50'
+},[
+    createElement('div', { class: 'text-black' }, 'Contact Options'),
+    createElement('div',{ id:'supprimer', class: 'text-black p-2 hover:text-red-500 cursor-pointer'},'Supprimer')
+])
 
 
 const div1Enfant1 = createElement('div',{
@@ -58,7 +64,8 @@ const div1Enfant1 = createElement('div',{
             }),
         ]),
         popupMenu,
-        popupFormulaire
+        popupFormulaire,
+        popupPourContact
     ])
 
 const div2Enfant1 = createElement('div',{
@@ -119,7 +126,7 @@ export function contact(contact){
         class: ' w-64 h-16 flex flex-col justify-around '
     },[
         createElement('div',{},contact.Prenom + ' ' +contact.Nom),
-        createElement('div',{},contact.dure)
+        createElement('div',{},contact.numero)
     ]);
 
     const date = createElement('div',{
@@ -132,55 +139,78 @@ export function contact(contact){
     ])
 
     return createElement('div',{
-        class : "text-white p-2 rounded-lg h-24 flex items-center cursor-pointer hover:bg-[#292A2A] "
+        class : "text-white p-2 rounded-lg h-24 flex items-center cursor-pointer hover:bg-[#292A2A] ",
+        id: 'id_'+contact.id,
+        onclick: (event) => menuCotacte(contact)
     },[
         photoContact,
         d2,
-        date
+        date,
     ])
 }
 
 
 
 
+function menuCotacte(contact) {
+    const popup = document.querySelector('#popupPourContact');
+    popup.classList.remove('hidden');
 
+    alert(`Contact: ${contact.Prenom} ${contact.Nom} id_${contact.id}`);
 
+    const supprimer = document.querySelector('#supprimer');
 
+    if (supprimer) {
+        // Pour éviter d'attacher plusieurs fois le même event listener :
+        supprimer.replaceWith(supprimer.cloneNode(true)); // clone et remplace
+        const nouveauSupprimer = document.querySelector('#supprimer');
 
+        nouveauSupprimer.addEventListener('click', () => {
+            alert('Supprimer contact');
 
+            // Supprimer du DOM
+            const contactElement = document.querySelector(`#id_${contact.id}`);
+            if (contactElement) {
+                contactElement.remove();
+            }
 
+            // Supprimer de JSON Server
+            fetch(`http://localhost:4025/users/${contact.id}`, {
+                method: 'DELETE'
+            })
+            .then(() => {
+                console.log(`Contact avec ID ${contact.id} supprimé du serveur.`);
+            })
+            .catch(err => {
+                console.error('Erreur de suppression côté serveur :', err);
+            });
 
-
-
-
-
-
-
-
-
-
+            // Cacher le popup
+            popup.classList.add('hidden');
+        });
+    }
+}
 
 
 
 
 document.addEventListener('click', (event) => {
     const target = event.target;
-    const isIcon3points = target.closest('#s2Icon3points');
 
-    // if (isIcon3points) {
-    //     event.stopPropagation();
-    //     popupMenu.classList.toggle('hidden');
-    //     popupFormulaire.classList.add('hidden'); // Assurez-vous que le formulaire est caché
-    // } else if (!popupMenu.contains(target)) {
-    //     popupMenu.classList.add('hidden');
-    // }
-    
+    const isIcon3points = target.closest('#s2Icon3points');
     const isNouveauContact = target.closest('#nouveauContact');
+    const isContact = target.closest('[id^="id_"]'); // Détecte un élément contact
+
+    // Cacher le popupPourContact uniquement si on n'a pas cliqué sur un contact
+    if (!isContact && !popupPourContact.contains(target)) {
+        popupPourContact.classList.add('hidden');
+    }
+
     if (isNouveauContact) {
         popupFormulaire.classList.toggle('hidden');
-        popupMenu.classList.add('hidden'); // Assurez-vous que le menu est caché
+        popupMenu.classList.add('hidden'); // Cache le menu
     } else if (!popupFormulaire.contains(target)) {
         popupFormulaire.classList.add('hidden');
     }
-})
+});
 
