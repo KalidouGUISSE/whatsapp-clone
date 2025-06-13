@@ -1,5 +1,5 @@
 import { createElement,createDivRontPourIcon,afficherMessageAlert } from '../componant.js'
-import { popupMenu, popupFormulaire, popupPourContact,popupFormGroupe } from './mesPoppup.js';
+import { popupMenu, popupFormulaire, popupPourContact,popupFormGroupe ,listeMembre} from './mesPoppup.js';
 
 const div1Enfant1 = createElement('div',{
         class : "relative bg--500 h-1/3 justify-between fji text-white"
@@ -16,6 +16,7 @@ const div1Enfant1 = createElement('div',{
         popupFormulaire,
         popupPourContact,
         popupFormGroupe,
+        listeMembre,
     ])
 
 const div2Enfant1 = createElement('div',{
@@ -178,8 +179,14 @@ document.addEventListener('click', (event) => {
         popupFormulaire.classList.add('hidden');
     }
 
-    
-
+    const isNouveauGroupe = target.closest('#nouveauGroupe');
+    if(isNouveauGroupe ) {
+        popupFormGroupe.classList.remove('hidden');
+        popupMenu.classList.add('hidden'); 
+    }
+    else if (!popupFormGroupe.contains(target)) {
+        popupFormGroupe.classList.add('hidden');
+    }
 
 });
 

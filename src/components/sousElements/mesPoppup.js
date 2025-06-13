@@ -48,7 +48,10 @@ export const popupPourContact = createElement('div',{
     class: 'absolute top-16 right-4 bg-white shadow-lg rounded-lg p-2 hidden z-50'
 },[
     createElement('div', { class: 'text-black' }, 'Contact Options'),
-    createElement('div',{ id:'supprimer', class: 'text-black p-2 hover:text-red-500 cursor-pointer'},'Supprimer')
+    createElement('div',{ id:'addAdmin', class: 'text-black p-2 hover:text-green-500 cursor-pointer'},'Ajouter un Admin'),
+    createElement('div',{ id:'supprimer', class: 'text-black p-2 hover:text-red-500 cursor-pointer'},'Supprimer'),
+    // createElement('div',{ id:'addMembre', class: 'text-black p-2 hover:text-red-500 cursor-pointer'},'Ajouter un membre'),
+    // createElement('div',{ id:'modifier', class: 'text-black p-2 hover:text-red-500 cursor-pointer'},'Modifier'),
 ])
 
 export const popupFormGroupe = createElement('div',{
@@ -76,4 +79,13 @@ export const popupFormGroupe = createElement('div',{
             class: 'bg-blue-500 text-white p-2 rounded hover:bg-blue-600'
         }, 'Creer Groupe')
     ])
+])
+
+
+export const listeMembre = createElement('div',{
+    id:'listeMembre',
+    class: 'text-black absolute top-16 right-4 bg-white shadow-lg rounded-lg p-2 hidden'
+},[
+    createElement('div', { class: 'text-black' }, 'Selectionner un membre'),
+
 ])
