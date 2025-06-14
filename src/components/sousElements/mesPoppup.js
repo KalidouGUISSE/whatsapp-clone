@@ -47,8 +47,9 @@ export const popupPourContact = createElement('div',{
     id: 'popupPourContact',
     class: 'absolute top-16 right-4 bg-white shadow-lg rounded-lg p-2 hidden z-50'
 },[
-    createElement('div', { class: 'text-black' }, 'Contact Options'),
+    createElement('div', { class: 'text-black' }, 'Options'),
     createElement('div',{ id:'addAdmin', class: 'text-black p-2 hover:text-green-500 cursor-pointer'},'Ajouter un Admin'),
+    createElement('div',{ id:'addMembre', class: 'text-black p-2 hover:text-green-500 cursor-pointer'},'Ajouter un Menbre'),
     createElement('div',{ id:'supprimer', class: 'text-black p-2 hover:text-red-500 cursor-pointer'},'Supprimer'),
     // createElement('div',{ id:'addMembre', class: 'text-black p-2 hover:text-red-500 cursor-pointer'},'Ajouter un membre'),
     // createElement('div',{ id:'modifier', class: 'text-black p-2 hover:text-red-500 cursor-pointer'},'Modifier'),

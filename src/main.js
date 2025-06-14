@@ -4,9 +4,11 @@ import { createElement, afficherMessageAlert ,dagayeKhar} from './components/com
 import { formSection } from './components/sousElements/pageDeConnexion.js'
 import { section2 ,contact } from './components/sousElements/section2.js'
 import { popupFormGroupe, popupFormulaire } from './components/sousElements/mesPoppup.js'
+import { chargerUsers } from './components/ui.js'
 // import { contact } from './components/ui.js'
 
-const url = "https://whatsapp-back-djjl.onrender.com"
+const url = "http://localhost:4025"
+// const url = "https://whatsapp-back-djjl.onrender.com"
 
 document.querySelector('body').appendChild(container)
 let contacts = [];
@@ -70,20 +72,6 @@ if (btnSeConecter) {
     
 }
 
-// chargerUsers(afficherContacts)
-async function chargerUsers(callback = afficherContacts) {
-    try {
-        const response = await fetch(url+'/users')
-        const data = await response.json()
-        localStorage.setItem('contacts', JSON.stringify(data))
-        callback(data)
-        return data
-    } catch (error) {
-        console.error("Erreur de chargement des utilisateurs :", error)
-        alert('Erreur de chargement des utilisateurs')
-        return []
-    }
-}
 
 
 
@@ -94,25 +82,6 @@ async function chargerUsers(callback = afficherContacts) {
 
 
 
-
-function afficherContacts(contacts,page = section2) {
-    if (document.querySelector('#mesContacts')) {
-        document.querySelector('#mesContacts').innerHTML = '';
-        document.querySelector('#mesContacts').remove();
-    }
-    const c = contacts.length
-    const domContacts = [];
-
-    for (let i = 0; i < c ; i++ ){
-        domContacts.push(contact( contacts[i] ))
-    }
-    const mesContacts = createElement('div', {
-        id:'mesContacts',
-        class: 'h-3/4 overflow-scroll'
-    }, domContacts);
-
-    page.appendChild(mesContacts)
-}
 
 
 // Fonction pour afficher le menu contextuel des trois points
@@ -157,7 +126,7 @@ function troisPoints() {
                     messages : []
                 };
 
-                // Envoi POST à JSON Server
+                // Envoi POST à JSON Server http://localhost:4025
                 fetch(url+'/users', {
                     method: 'POST',
                     headers: {
@@ -283,52 +252,300 @@ function troisPoints() {
     // }
 
     const addAdmin = document.querySelector('#addAdmin');
+    if (addAdmin) {
+        addAdmin.addEventListener('click', async () => {
+            const popupPourContact = document.querySelector('#popupPourContact');
+            popupPourContact?.classList.add('hidden');
 
-if (addAdmin) {
-    addAdmin.addEventListener('click', async () => {
-        const popupPourContact = document.querySelector('#popupPourContact');
-        popupPourContact?.classList.add('hidden');
 
-        alert('Ajouter un Admin');
+            const listeMembre = document.querySelector('#listeMembre');
+            if (listeMembre) {
+                listeMembre.classList.toggle('hidden');
 
-        const listeMembre = document.querySelector('#listeMembre');
-        if (listeMembre) {
-            listeMembre.classList.toggle('hidden');
+                // Vider l'ancienne liste si nécessaire
+                listeMembre.innerHTML = '';
 
-            // Vider l'ancienne liste si nécessaire
-            listeMembre.innerHTML = '';
+                try {
+                    const response = await fetch(url+'/users');
+                    const users = await response.json();
 
-            try {
-                const response = await fetch(url+'/users');
-                const users = await response.json();
+                    // Filtrer les utilisateurs qui ont groupe: true
+                    const membresGroupe = users.filter(user => user.groupe === true);
 
-                // Filtrer les utilisateurs qui ont groupe: true
-                const membresGroupe = users.filter(user => user.groupe === true);
+                    // Ajouter chaque membre à la listeMembre
+                    membresGroupe.forEach(user => {
+                        const div = document.createElement('div');
+                        div.classList.add('membre-item', 'p-2', 'border-b', 'hover:bg-gray-100');
+                        div.innerHTML = `
+                            <strong>${user.Prenom} ${user.Nom}</strong> - ${user.numero}
+                        `;
+                        listeMembre.appendChild(div);
+                    });
 
-                // Ajouter chaque membre à la listeMembre
-                membresGroupe.forEach(user => {
-                    const div = document.createElement('div');
-                    div.classList.add('membre-item', 'p-2', 'border-b', 'hover:bg-gray-100');
-                    div.innerHTML = `
-                        <strong>${user.Prenom} ${user.Nom}</strong> - ${user.numero}
-                    `;
-                    listeMembre.appendChild(div);
+                    // Fermer le menu si ouvert
+                    document.getElementById('popupMenu')?.classList.add('hidden');
+                } catch (error) {
+                    console.error('Erreur de chargement des membres :', error);
+                    alert('Impossible de charger les membres du groupe');
+                }
+            }
+        });
+    }
+
+    const addMembre = document.querySelector('#addMembre');
+    if (addMembre) {
+        addMembre.addEventListener('click', async () => {
+            const contactActif = JSON.parse(localStorage.getItem('contactActif'));
+            console.log('Contact actif:', contactActif);
+            if (contactActif && contactActif.groupe) {
+            // Supprime le popup s’il existe déjà
+            document.querySelector('#popupListeContacts')?.remove();
+
+            // Créer le fond du popup
+            const overlay = createElement('div', {
+                id: 'popupListeContacts',
+                class: 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50'
+            });
+
+            // Contenu du popup
+            const popup = createElement('div', {
+                class: 'bg-white p-6 rounded-xl w-[90%] max-w-md shadow-lg relative'
+            });
+
+            // Bouton de fermeture
+            const closeBtn = createElement('button', {
+                class: 'absolute top-2 right-3 text-xl text-red-500 hover:text-red-700',
+                onclick: () => overlay.remove()
+            }, '×');
+            // Bouton : Liste des membres
+            const btnListeMembres = createElement('button', {
+                class: 'absolute top-2 left-3 text-sm bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600',
+                onclick: () => afficherListeMembres(contactActif)
+            }, 'Liste des membres');
+
+            // Titre
+            const titre = createElement('h2', {
+                class: 'text-xl font-semibold mb-4 text-center'
+            }, 'Liste des Contacts');
+
+            // Conteneur des contacts
+            const liste = createElement('div', {
+                class: 'flex flex-col gap-2 max-h-[300px] overflow-y-auto'
+            });
+
+            // Charger les utilisateurs
+            const contacts = await chargerUsers();
+
+            // On filtre pour ne garder que les contacts qui NE sont PAS des groupes
+            const utilisateursSimples = contacts.filter(user => !user.groupe);
+            
+            const checkboxes = []; // Pour stocker les checkbox avec leur user
+
+            utilisateursSimples.forEach(user => {
+                const checkbox = createElement('input', {
+                    type: 'checkbox',
+                    class: 'mr-2'
                 });
+            
+                checkboxes.push({ user, checkbox });
+            
+                const item = createElement('div', {
+                    class: 'border rounded p-3 hover:bg-gray-100 cursor-pointer flex items-center gap-3'
+                }, [
+                    checkbox,
+                    createElement('div', { class: 'flex flex-col' }, [
+                        createElement('span', { class: 'font-bold' }, `${user.Prenom} ${user.Nom}`),
+                        createElement('span', { class: 'text-sm text-gray-600' }, user.numero)
+                    ])
+                ]);
+            
+                liste.appendChild(item);
+            });
+            
+            // Ajouter les éléments dans le popup
+            popup.addNode(closeBtn).addNode(btnListeMembres).addNode(titre).addNode(liste);
 
-                // Fermer le menu si ouvert
-                document.getElementById('popupMenu')?.classList.add('hidden');
-            } catch (error) {
-                console.error('Erreur de chargement des membres :', error);
-                alert('Impossible de charger les membres du groupe');
+
+            const boutonAjouter = createElement('button', {
+                class: 'mt-4 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 block mx-auto',
+                onclick: async () => {
+                    const membresChoisis = checkboxes
+                        .filter(({ checkbox }) => checkbox.checked)
+                        .map(({ user }) => user.id);
+                
+                    if (membresChoisis.length === 0) {
+                        alert('Veuillez sélectionner au moins un contact.');
+                        return;
+                    }
+                
+                    // Initialiser le tableau si nécessaire
+                    if (!Array.isArray(contactActif.membres)) {
+                        contactActif.membres = [];
+                    }
+                
+                    // Ajouter uniquement les membres non existants
+                    membresChoisis.forEach(id => {
+                        if (!contactActif.membres.includes(id)) {
+                            contactActif.membres.push(id);
+                        }
+                    });
+                
+                    // Sauvegarder la mise à jour localement
+                    localStorage.setItem('contactActif', JSON.stringify(contactActif));
+                
+                    // Envoyer la mise à jour à JSON Server
+                    try {
+                        const reponse = await fetch(`${url}/users/${contactActif.id}`, {
+                            method: 'PATCH',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ membres: contactActif.membres })
+                        });
+                
+                        if (reponse.ok) {
+                            alert('Membres ajoutés au groupe avec succès.');
+                            overlay.remove(); // Fermer le popup
+                        } else {
+                            alert('Erreur lors de la mise à jour du groupe.');
+                        }
+                    } catch (err) {
+                        console.error('Erreur JSON Server :', err);
+                        alert("Impossible de contacter le serveur. Vérifie qu'il tourne bien.");
+                    }
+                }
+                
+            }, '+ Ajouter');
+            
+            popup.appendChild(boutonAjouter);
+            
+
+
+            overlay.appendChild(popup);
+
+            // Afficher le popup
+            document.body.appendChild(overlay);
+                
+            } else {
+                afficherMessageAlert('error', 'Veuillez sélectionner un groupe pour ajouter des membres.', document.querySelector('#mesContacts'));
             }
 
-            alert('Admin');
+        });
+    }
+
+
+
+
+
+    async function afficherListeMembres(contactActif) {
+        if (!contactActif.membres || contactActif.membres.length === 0) {
+            alert("Aucun membre dans ce groupe.");
+            return;
         }
-    });
-}
+    
+        try {
+            const allUsers = await chargerUsers(); // récupère tous les users
+            const membres = allUsers.filter(user => contactActif.membres.includes(user.id));
+    
+            // Crée une popup simple
+            const popupMembres = createElement('div', {
+                class: 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50'
+            });
+    
+            const contenu = createElement('div', {
+                class: 'bg-white p-6 rounded-xl w-[90%] max-w-md shadow-lg relative flex flex-col gap-2'
+            });
+    
+            const titre = createElement('h3', {
+                class: 'text-lg font-bold mb-2 text-center'
+            }, 'Membres du Groupe');
+    
+            const btnFermer = createElement('button', {
+                class: 'absolute top-2 right-3 text-xl text-red-500 hover:text-red-700',
+                onclick: () => popupMembres.remove()
+            }, '×');
+    
+            contenu.appendChild(titre);
+            contenu.appendChild(btnFermer);
+    
+            membres.forEach(m => {
+                const div = createElement('div', {
+                    class: 'border rounded px-3 py-2 text-sm bg-gray-50'
+                }, `${m.Prenom} ${m.Nom} (${m.numero})`);
+                contenu.appendChild(div);
+            });
+    
+            popupMembres.appendChild(contenu);
+            document.body.appendChild(popupMembres);
+    
+            membres.forEach(m => {
+                const estAdmin = contactActif.Admin?.includes(m.id);
+            
+                const div = createElement('div', {
+                    class: 'border rounded px-3 py-2 text-sm bg-gray-50 flex justify-between items-center'
+                });
+            
+                const texte = createElement('span', {}, `${m.Prenom} ${m.Nom} (${m.numero})`);
+            
+                const btnAdmin = createElement('button', {
+                    class: `text-xs px-2 py-1 rounded ${
+                        estAdmin ? 'bg-red-500 text-white' : 'bg-green-500 text-white'
+                    }`,
+                    onclick: async () => {
+                        // Initialise le tableau Admin si vide
+                        if (!Array.isArray(contactActif.Admin)) {
+                            contactActif.Admin = [];
+                        }
+            
+                        if (estAdmin) {
+                            // Supprimer l'admin
+                            contactActif.Admin = contactActif.Admin.filter(id => id !== m.id);
+                        } else {
+                            // Ajouter comme admin
+                            contactActif.Admin.push(m.id);
+                        }
+            
+                        // Sauvegarde dans localStorage
+                        localStorage.setItem('contactActif', JSON.stringify(contactActif));
+            
+                        // Mise à jour sur JSON Server
+                        try {
+                            const reponse = await fetch(`${url}/users/${contactActif.id}`, {
+                                method: 'PATCH',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ Admin: contactActif.Admin })
+                            });
+            
+                            if (reponse.ok) {
+                                alert(`Admin ${estAdmin ? 'retiré' : 'ajouté'} avec succès.`);
+                                afficherListeMembres(contactActif); // Recharger pour voir l’état mis à jour
+                            } else {
+                                alert('Erreur lors de la mise à jour.');
+                            }
+                        } catch (err) {
+                            console.error('Erreur JSON Server :', err);
+                        }
+                    }
+                }, estAdmin ? 'Retirer admin' : 'Définir admin');
+            
+                div.appendChild(texte);
+                div.appendChild(btnAdmin);
+                contenu.appendChild(div);
+            });
+            
+
+        } catch (err) {
+            console.error('Erreur lors de la récupération des membres :', err);
+            alert('Impossible de charger les membres.');
+        }
+
+    }
+    
+
+
+
+
+
 
 }
-
 
 
 

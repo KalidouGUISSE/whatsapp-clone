@@ -1,37 +1,49 @@
+import { contact } from "./sousElements/section2.js";
 
-// export function contact(contact){
-//     const photoContact = createElement('div',{
-//         // class: ' h-16 w-16 rounded-full border border-gray-300 bg-[url(/profile2.png)] bg-cover bg-center bg-no-repeat'
-//     },[
-//         createElement('img', {
-//             src: contact.image,
-//             alt: 'Avatar',
-//             class: 'h-16 w-16 rounded-full border border-gray-300 object-cover'
-//         })
-//     ])
-    
-//     const d2 = createElement('div',{
-//         class: ' w-64 h-16 flex flex-col justify-around '
-//     },[
-//         createElement('div',{},contact.Prenom + ' ' +contact.Nom),
-//         createElement('div',{},contact.dure)
-//     ]);
+import { createElement } from "./componant.js";
+// import { contact } from "./sousElements/contact.js";
+import { section2 } from "./sousElements/section2.js";
 
-//     const date = createElement('div',{
-//         class: ' w-1/5 h-16 flex flex-col justify-around fji'
-//     },[
-//         createElement('div',{class: ' '},contact.heurNotif),
-//         createElement('div',{
-//             class: 'h-6 w-8 rounded-full bg-green-600 fji'
-//         },contact.nomLue)
-//     ])
+const url = "http://localhost:4025"
+// const url = "https://whatsapp-back-djjl.onrender.com"
 
-//     return createElement('div',{
-//         class : "border mt-2 text-white p-2 rounded-lg h-24 flex items-center cursor-pointer hover:bg-gray-500"
-//     },[
-//         photoContact,
-//         d2,
-//         date
-//     ])
-// }
 
+
+
+
+
+// chargerUsers(afficherContacts)
+export async function chargerUsers(callback = afficherContacts) {
+    try {
+        const response = await fetch(url+'/users')
+        const data = await response.json()
+        localStorage.setItem('contacts', JSON.stringify(data))
+        callback(data)
+        return data
+    } catch (error) {
+        console.error("Erreur de chargement des utilisateurs :", error)
+        alert('Erreur de chargement des utilisateurs')
+        return []
+    }
+}
+
+
+
+function afficherContacts(contacts,page = section2) {
+    if (document.querySelector('#mesContacts')) {
+        document.querySelector('#mesContacts').innerHTML = '';
+        document.querySelector('#mesContacts').remove();
+    }
+    const c = contacts.length
+    const domContacts = [];
+
+    for (let i = 0; i < c ; i++ ){
+        domContacts.push(contact( contacts[i] ))
+    }
+    const mesContacts = createElement('div', {
+        id:'mesContacts',
+        class: 'h-3/4 overflow-scroll'
+    }, domContacts);
+
+    page.appendChild(mesContacts)
+}

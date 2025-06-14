@@ -1,6 +1,6 @@
 import { createElement,createDivRontPourIcon,afficherMessageAlert } from '../componant.js'
 import { popupMenu, popupFormulaire, popupPourContact,popupFormGroupe ,listeMembre} from './mesPoppup.js';
-
+import { chargerUsers } from '../ui.js';
 const div1Enfant1 = createElement('div',{
         class : "relative bg--500 h-1/3 justify-between fji text-white"
     },[
@@ -121,6 +121,11 @@ function menuCotacte(contact) {
     popup.classList.remove('hidden');
 
     alert(`Contact: ${contact.Prenom} ${contact.Nom} id_${contact.id}`);
+    localStorage.setItem('contactActif',JSON.stringify(contact));
+    // console.log('Contact actif:', localStorage.getItem('contactActif'));
+    
+    const contactActif = JSON.parse(localStorage.getItem('contactActif'));
+    console.log('Contact actif:', contactActif);
 
     const supprimer = document.querySelector('#supprimer');
 
@@ -155,6 +160,71 @@ function menuCotacte(contact) {
             popup.classList.add('hidden');
         });
     }
+
+
+    // const addMembre = document.querySelector('#addMembre');
+
+    // if (addMembre) {
+    //     addMembre.addEventListener('click', async () => {
+    //         const popupPourContact = document.querySelector('#popupPourContact');
+    //         popupPourContact?.classList.add('hidden');
+
+    //         if (!contact.groupe) {
+    //             afficherMessageAlert('warning', 'Creer un groupe pour ajouter un membre', enfant1);
+    //             return;
+    //         }
+    //         // Supprime le popup s’il existe déjà
+    //         document.querySelector('#popupListeContacts')?.remove();
+
+    //         // Créer le fond du popup
+    //         const overlay = createElement('div', {
+    //             id: 'popupListeContacts',
+    //             class: 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50'
+    //         });
+
+    //         // Contenu du popup
+    //         const popup = createElement('div', {
+    //             class: 'bg-white p-6 rounded-xl w-[90%] max-w-md shadow-lg relative'
+    //         });
+
+    //         // Bouton de fermeture
+    //         const closeBtn = createElement('button', {
+    //             class: 'absolute top-2 right-3 text-xl text-red-500 hover:text-red-700',
+    //             onclick: () => overlay.remove()
+    //         }, '×');
+
+    //         // Titre
+    //         const titre = createElement('h2', {
+    //             class: 'text-xl font-semibold mb-4 text-center'
+    //         }, 'Liste des Contacts');
+
+    //         // Conteneur des contacts
+    //         const liste = createElement('div', {
+    //             class: 'flex flex-col gap-2 max-h-[300px] overflow-y-auto'
+    //         });
+
+    //         // Charger les utilisateurs
+    //         const contacts = await chargerUsers();
+
+    //         contacts.forEach(user => {
+    //             const item = createElement('div', {
+    //                 class: 'border rounded p-3 hover:bg-gray-100 cursor-pointer flex flex-col'
+    //             }, [
+    //                 createElement('span', { class: 'font-bold' }, `${user.Prenom} ${user.Nom}`),
+    //                 createElement('span', { class: 'text-sm text-gray-600' }, user.numero)
+    //             ]);
+
+    //             liste.appendChild(item);
+    //         });
+
+    //         // Ajouter les éléments dans le popup
+    //         popup.addNode(closeBtn).addNode(titre).addNode(liste);
+    //         overlay.appendChild(popup);
+
+    //         // Afficher le popup
+    //         document.body.appendChild(overlay);
+    //     });
+    // }
 }
 
 
