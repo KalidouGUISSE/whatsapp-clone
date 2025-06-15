@@ -1,6 +1,7 @@
 import { createElement,createDivRontPourIcon,afficherMessageAlert } from '../componant.js'
 import { popupMenu, popupFormulaire, popupPourContact,popupFormGroupe ,listeMembre} from './mesPoppup.js';
-import { chargerUsers } from '../ui.js';
+import { chargerUsers,listerMembres } from '../ui.js';
+import { smsEvoie } from './section3.js';
 const div1Enfant1 = createElement('div',{
         class : "relative bg--500 h-1/3 justify-between fji text-white"
     },[
@@ -88,7 +89,7 @@ export function contact(contact){
             class: ' w-64 h-16 flex flex-col justify-around '
         },[
             createElement('div',{},'' +contact.Nom),
-            createElement('div',{},contact.numero)
+            // createElement('div',{},contact.numero)
         ]);
     }
 
@@ -123,12 +124,22 @@ function menuCotacte(contact) {
     alert(`Contact: ${contact.Prenom} ${contact.Nom} id_${contact.id}`);
     localStorage.setItem('contactActif',JSON.stringify(contact));
     // console.log('Contact actif:', localStorage.getItem('contactActif'));
-    
+    localStorage.setItem('messageEnCours',JSON.stringify(contact.messages))
     const contactActif = JSON.parse(localStorage.getItem('contactActif'));
     console.log('Contact actif:', contactActif);
 
-    const supprimer = document.querySelector('#supprimer');
 
+
+
+    // Mettre à jour de la section 3
+    const image = document.querySelector('#image');
+    const nomPrenom = document.querySelector('#nomPrenom');
+    image.src = '/profile2.png'; // Remplacez par l'URL de l'image souhaitée
+    nomPrenom.textContent = contact.Nom; // Remplacez par le nom et prénom souhaités
+
+    listerMembres();
+
+    const supprimer = document.querySelector('#supprimer');
     if (supprimer) {
         // Pour éviter d'attacher plusieurs fois le même event listener :
         supprimer.replaceWith(supprimer.cloneNode(true)); // clone et remplace
@@ -162,69 +173,43 @@ function menuCotacte(contact) {
     }
 
 
-    // const addMembre = document.querySelector('#addMembre');
 
-    // if (addMembre) {
-    //     addMembre.addEventListener('click', async () => {
-    //         const popupPourContact = document.querySelector('#popupPourContact');
-    //         popupPourContact?.classList.add('hidden');
 
-    //         if (!contact.groupe) {
-    //             afficherMessageAlert('warning', 'Creer un groupe pour ajouter un membre', enfant1);
-    //             return;
-    //         }
-    //         // Supprime le popup s’il existe déjà
-    //         document.querySelector('#popupListeContacts')?.remove();
 
-    //         // Créer le fond du popup
-    //         const overlay = createElement('div', {
-    //             id: 'popupListeContacts',
-    //             class: 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50'
-    //         });
+    const messageEnCours = JSON.parse(localStorage.getItem('messageEnCours'))
 
-    //         // Contenu du popup
-    //         const popup = createElement('div', {
-    //             class: 'bg-white p-6 rounded-xl w-[90%] max-w-md shadow-lg relative'
-    //         });
+ 
+    
+    console.log('okk');
+    console.log('messageEnCours', messageEnCours);
 
-    //         // Bouton de fermeture
-    //         const closeBtn = createElement('button', {
-    //             class: 'absolute top-2 right-3 text-xl text-red-500 hover:text-red-700',
-    //             onclick: () => overlay.remove()
-    //         }, '×');
+    const mesSMS = document.querySelector('#mesSMS');
+    mesSMS.innerHTML = '';
+    let sms = null
+    messageEnCours.forEach(messageEnCour => {
+        console.log('sms');
+        console.log(messageEnCour.idAuteur === contactActif.id);
+        console.log(messageEnCour.idAuteur );
+        console.log(contactActif.id);
+        console.log('sms');
+        sms = smsEvoie((messageEnCour.idAuteur === contactActif.id), ` ${messageEnCour.text} `);
+        console.log('messageEnCour.text:',messageEnCour.text);
+        console.log('sms');
+        mesSMS.appendChild(sms);
+    });
 
-    //         // Titre
-    //         const titre = createElement('h2', {
-    //             class: 'text-xl font-semibold mb-4 text-center'
-    //         }, 'Liste des Contacts');
-
-    //         // Conteneur des contacts
-    //         const liste = createElement('div', {
-    //             class: 'flex flex-col gap-2 max-h-[300px] overflow-y-auto'
-    //         });
-
-    //         // Charger les utilisateurs
-    //         const contacts = await chargerUsers();
-
-    //         contacts.forEach(user => {
-    //             const item = createElement('div', {
-    //                 class: 'border rounded p-3 hover:bg-gray-100 cursor-pointer flex flex-col'
-    //             }, [
-    //                 createElement('span', { class: 'font-bold' }, `${user.Prenom} ${user.Nom}`),
-    //                 createElement('span', { class: 'text-sm text-gray-600' }, user.numero)
-    //             ]);
-
-    //             liste.appendChild(item);
-    //         });
-
-    //         // Ajouter les éléments dans le popup
-    //         popup.addNode(closeBtn).addNode(titre).addNode(liste);
-    //         overlay.appendChild(popup);
-
-    //         // Afficher le popup
-    //         document.body.appendChild(overlay);
-    //     });
+    // if (mesSMS) {
+    //     mesSMS.innerHTML = ''; // Vide le contenu précédent
+    //     const messages = smsEvoie(true,'Messsage envoyer')
+    //     mesSMS.appendChild(messages);
+    // } else {
+    //     console.error('L\'élément mesSMS n\'existe pas dans le DOM.');
     // }
+
+
+
+
+
 }
 
 

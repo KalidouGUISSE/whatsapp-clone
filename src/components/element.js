@@ -9,7 +9,7 @@ export let pageCharger = [];
 
 
 export function charger( x = false) {
-    if (x) {
+    if (!x) {
         pageCharger = [
             section1,
             section2,

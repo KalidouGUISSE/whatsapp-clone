@@ -86,7 +86,8 @@ if (btnSeConecter) {
 
 // Fonction pour afficher le menu contextuel des trois points
 // a enlever apres
-// troisPoints() 
+troisPoints() 
+chargerUsers()
 
 function troisPoints() {
     const s2Icon3points = document.querySelector('#s2Icon3points').parentElement.parentElement;
@@ -228,29 +229,6 @@ function troisPoints() {
         });
     }
 
-    
-    // const addAdmin = document.querySelector('#addAdmin');
-    // if (addAdmin) {
-    //     addAdmin.addEventListener('click', () => {
-    //         const popupPourContact = document.querySelector('#popupPourContact');
-    //         popupPourContact.classList.add('hidden');
-    //         // const popupFormulaire = document.querySelector('#popupFormulaire');
-    //         alert('Ajouter un Admin');
-    //         console.log(popupFormulaire);
-    //             const listeMembre = document.querySelector('#listeMembre');
-    //             if (listeMembre){
-    //                 listeMembre.classList.toggle('hidden');
-    //                 listeMembre.addElement('div',{},'qere')
-    //                 // afficherContacts(contacts,listeMembre)
-    //                 // chargerUsers(afficherContacts)
-    //                 document.getElementById('popupMenu').classList.add('hidden'); 
-    //             }
-
-    //             alert('Admin');
-    //     // afficherMessageAlert('info','Ajouter un Admin',popupFormulaire)
-    //     });
-    // }
-
     const addAdmin = document.querySelector('#addAdmin');
     if (addAdmin) {
         addAdmin.addEventListener('click', async () => {
@@ -258,37 +236,37 @@ function troisPoints() {
             popupPourContact?.classList.add('hidden');
 
 
-            const listeMembre = document.querySelector('#listeMembre');
-            if (listeMembre) {
-                listeMembre.classList.toggle('hidden');
+            // const listeMembre = document.querySelector('#listeMembre');
+            // if (listeMembre) {
+            //     listeMembre.classList.toggle('hidden');
 
-                // Vider l'ancienne liste si nécessaire
-                listeMembre.innerHTML = '';
+            //     // Vider l'ancienne liste si nécessaire
+            //     listeMembre.innerHTML = '';
 
-                try {
-                    const response = await fetch(url+'/users');
-                    const users = await response.json();
+            //     try {
+            //         const response = await fetch(url+'/users');
+            //         const users = await response.json();
 
-                    // Filtrer les utilisateurs qui ont groupe: true
-                    const membresGroupe = users.filter(user => user.groupe === true);
+            //         // Filtrer les utilisateurs qui ont groupe: true
+            //         const membresGroupe = users.filter(user => user.groupe === true);
 
-                    // Ajouter chaque membre à la listeMembre
-                    membresGroupe.forEach(user => {
-                        const div = document.createElement('div');
-                        div.classList.add('membre-item', 'p-2', 'border-b', 'hover:bg-gray-100');
-                        div.innerHTML = `
-                            <strong>${user.Prenom} ${user.Nom}</strong> - ${user.numero}
-                        `;
-                        listeMembre.appendChild(div);
-                    });
+            //         // Ajouter chaque membre à la listeMembre
+            //         membresGroupe.forEach(user => {
+            //             const div = document.createElement('div');
+            //             div.classList.add('membre-item', 'p-2', 'border-b', 'hover:bg-gray-100');
+            //             div.innerHTML = `
+            //                 <strong>${user.Prenom} ${user.Nom}</strong> - ${user.numero}
+            //             `;
+            //             listeMembre.appendChild(div);
+            //         });
 
-                    // Fermer le menu si ouvert
-                    document.getElementById('popupMenu')?.classList.add('hidden');
-                } catch (error) {
-                    console.error('Erreur de chargement des membres :', error);
-                    alert('Impossible de charger les membres du groupe');
-                }
-            }
+            //         // Fermer le menu si ouvert
+            //         document.getElementById('popupMenu')?.classList.add('hidden');
+            //     } catch (error) {
+            //         console.error('Erreur de chargement des membres :', error);
+            //         alert('Impossible de charger les membres du groupe');
+            //     }
+            // }
         });
     }
 
@@ -317,12 +295,6 @@ function troisPoints() {
                 class: 'absolute top-2 right-3 text-xl text-red-500 hover:text-red-700',
                 onclick: () => overlay.remove()
             }, '×');
-            // Bouton : Liste des membres
-            const btnListeMembres = createElement('button', {
-                class: 'absolute top-2 left-3 text-sm bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600',
-                onclick: () => afficherListeMembres(contactActif)
-            }, 'Liste des membres');
-
             // Titre
             const titre = createElement('h2', {
                 class: 'text-xl font-semibold mb-4 text-center'
@@ -363,7 +335,7 @@ function troisPoints() {
             });
             
             // Ajouter les éléments dans le popup
-            popup.addNode(closeBtn).addNode(btnListeMembres).addNode(titre).addNode(liste);
+            popup.addNode(closeBtn).addNode(titre).addNode(liste);
 
 
             const boutonAjouter = createElement('button', {
@@ -435,110 +407,19 @@ function troisPoints() {
 
 
 
-    async function afficherListeMembres(contactActif) {
-        if (!contactActif.membres || contactActif.membres.length === 0) {
-            alert("Aucun membre dans ce groupe.");
-            return;
-        }
-    
-        try {
-            const allUsers = await chargerUsers(); // récupère tous les users
-            const membres = allUsers.filter(user => contactActif.membres.includes(user.id));
-    
-            // Crée une popup simple
-            const popupMembres = createElement('div', {
-                class: 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50'
-            });
-    
-            const contenu = createElement('div', {
-                class: 'bg-white p-6 rounded-xl w-[90%] max-w-md shadow-lg relative flex flex-col gap-2'
-            });
-    
-            const titre = createElement('h3', {
-                class: 'text-lg font-bold mb-2 text-center'
-            }, 'Membres du Groupe');
-    
-            const btnFermer = createElement('button', {
-                class: 'absolute top-2 right-3 text-xl text-red-500 hover:text-red-700',
-                onclick: () => popupMembres.remove()
-            }, '×');
-    
-            contenu.appendChild(titre);
-            contenu.appendChild(btnFermer);
-    
-            membres.forEach(m => {
-                const div = createElement('div', {
-                    class: 'border rounded px-3 py-2 text-sm bg-gray-50'
-                }, `${m.Prenom} ${m.Nom} (${m.numero})`);
-                contenu.appendChild(div);
-            });
-    
-            popupMembres.appendChild(contenu);
-            document.body.appendChild(popupMembres);
-    
-            membres.forEach(m => {
-                const estAdmin = contactActif.Admin?.includes(m.id);
-            
-                const div = createElement('div', {
-                    class: 'border rounded px-3 py-2 text-sm bg-gray-50 flex justify-between items-center'
-                });
-            
-                const texte = createElement('span', {}, `${m.Prenom} ${m.Nom} (${m.numero})`);
-            
-                const btnAdmin = createElement('button', {
-                    class: `text-xs px-2 py-1 rounded ${
-                        estAdmin ? 'bg-red-500 text-white' : 'bg-green-500 text-white'
-                    }`,
-                    onclick: async () => {
-                        // Initialise le tableau Admin si vide
-                        if (!Array.isArray(contactActif.Admin)) {
-                            contactActif.Admin = [];
-                        }
-            
-                        if (estAdmin) {
-                            // Supprimer l'admin
-                            contactActif.Admin = contactActif.Admin.filter(id => id !== m.id);
-                        } else {
-                            // Ajouter comme admin
-                            contactActif.Admin.push(m.id);
-                        }
-            
-                        // Sauvegarde dans localStorage
-                        localStorage.setItem('contactActif', JSON.stringify(contactActif));
-            
-                        // Mise à jour sur JSON Server
-                        try {
-                            const reponse = await fetch(`${url}/users/${contactActif.id}`, {
-                                method: 'PATCH',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ Admin: contactActif.Admin })
-                            });
-            
-                            if (reponse.ok) {
-                                alert(`Admin ${estAdmin ? 'retiré' : 'ajouté'} avec succès.`);
-                                afficherListeMembres(contactActif); // Recharger pour voir l’état mis à jour
-                            } else {
-                                alert('Erreur lors de la mise à jour.');
-                            }
-                        } catch (err) {
-                            console.error('Erreur JSON Server :', err);
-                        }
-                    }
-                }, estAdmin ? 'Retirer admin' : 'Définir admin');
-            
-                div.appendChild(texte);
-                div.appendChild(btnAdmin);
-                contenu.appendChild(div);
-            });
-            
 
-        } catch (err) {
-            console.error('Erreur lors de la récupération des membres :', err);
-            alert('Impossible de charger les membres.');
-        }
 
-    }
-    
+
+
+
+
+
+
+
+
+
+
+
 
 
 
