@@ -148,7 +148,17 @@ export async function listerMembres() {
 
 
 
+export function smsEvoie(x,sms){
+    if (x) {
+        return createElement('div',{
+            class: 'w-1/3 bg-[#144D37]/80 h-24 ml-auto rounded-lg mt-2 text-white p-3'
+        },[sms])
+    }
+    return createElement('div',{
+        class: 'w-1/3 bg-gray-500/30 h-24 rounded-lg mt-1 text-white p-3'
+    },[sms])
 
+}
 
 
 

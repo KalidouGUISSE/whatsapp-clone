@@ -4,7 +4,7 @@ import { createElement, afficherMessageAlert ,dagayeKhar} from './components/com
 import { formSection } from './components/sousElements/pageDeConnexion.js'
 import { section2 ,contact } from './components/sousElements/section2.js'
 import { popupFormGroupe, popupFormulaire } from './components/sousElements/mesPoppup.js'
-import { chargerUsers } from './components/ui.js'
+import { chargerUsers,smsEvoie } from './components/ui.js'
 // import { contact } from './components/ui.js'
 
 const url = "http://localhost:4025"
@@ -50,6 +50,8 @@ if (btnSeConecter) {
     
             // Optionnel : enregistrer l’utilisateur connecté
             localStorage.setItem('userConnecte', JSON.stringify(utilisateurTrouve));
+            console.log('oiuytd');
+            
             console.log('Utilisateur connecté :', localStorage.getItem('userConnecte'));
             
             // Récupérer l'utilisateur et le stocker dans un tableau
@@ -57,6 +59,7 @@ if (btnSeConecter) {
             const utilisateur = JSON.parse(userJSON); // conversion JSON → objet
 
             tabUserConnecte.push(utilisateur); // ajouter l'utilisateur au tableau
+            console.log('oiuytd');
 
             console.log('Utilisateur connecté :', tabUserConnecte[0].id);
 
@@ -86,8 +89,8 @@ if (btnSeConecter) {
 
 // Fonction pour afficher le menu contextuel des trois points
 // a enlever apres
-troisPoints() 
-chargerUsers()
+// troisPoints() 
+// chargerUsers()
 
 function troisPoints() {
     const s2Icon3points = document.querySelector('#s2Icon3points').parentElement.parentElement;
@@ -404,6 +407,78 @@ function troisPoints() {
     }
 
 
+
+    const envoyerSMS = document.getElementById('envoyerSMS');
+    envoyerSMS.parentElement.addEventListener('click', async () => {
+
+        //pour eviter d'ajouter un message dans le dernier contacte reste qui reste dans le localstorage`
+        const aucunMessage = document.querySelector('#aucunMessage');
+        if (aucunMessage) {
+            return
+        }
+
+        const inputMessage = document.querySelector('#inputMessage');
+        const message = inputMessage.value.trim();
+        inputMessage.value = ''
+
+        if (message === '') {
+            // afficherMessageAlert('error', 'Le message ne peut pas être vide', document.querySelector('#section3'));
+            return;
+        }
+
+        const contactActif = JSON.parse(localStorage.getItem('contactActif'));
+        // const messageEnCours = JSON.parse(localStorage.getItem('messageEnCours'))
+        const messageEnCours = contactActif.messages;
+        const nouveauMessage = {
+            id: Date.now().toString(),
+            text: message,
+            idAuteur: tabUserConnecte[0].id, 
+            date: new Date().toISOString(),
+            lu: false 
+        };
+
+        const zoneMessage = document.querySelector('#zoneMessage')
+        
+        zoneMessage.appendChild(smsEvoie(true,nouveauMessage.text))
+        setTimeout(() => {
+            zoneMessage.appendChild(smsEvoie(false,'message recue '))
+        }, 2000);
+
+        // fetch(url+'/users/'+tabUserConnecte[0].id)
+        //     .then(r => r.json())
+        //     .then(r => console.log(r))
+        // 1. Récupérer les messages existants de contactActif
+        const userId = contactActif.id;
+
+        try {
+            const response = await fetch(`${url}/users/${userId}`);
+            const user = await response.json();
+
+            // 2. Ajouter le nouveau message à la liste
+            const nouveauxMessages = user.messages || [];
+            nouveauxMessages.push(nouveauMessage);
+
+            // 3. PATCH vers JSON Server pour mettre à jour les messages
+            const res = await fetch(`${url}/users/${userId}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ messages: nouveauxMessages })
+            });
+
+            if (res.ok) {
+                console.log('Message enregistré avec succès dans db.json');
+            } else {
+                console.error('Erreur lors de l’enregistrement du message');
+            }
+        } catch (err) {
+            console.error('Erreur réseau :', err);
+        }
+
+
+
+    })
 
 
 

@@ -1,7 +1,7 @@
 import { createElement,createDivRontPourIcon,afficherMessageAlert } from '../componant.js'
 import { popupMenu, popupFormulaire, popupPourContact,popupFormGroupe ,listeMembre} from './mesPoppup.js';
-import { chargerUsers,listerMembres } from '../ui.js';
-import { smsEvoie } from './section3.js';
+import { chargerUsers,listerMembres,smsEvoie } from '../ui.js';
+// import {  } from './section3.js';
 const div1Enfant1 = createElement('div',{
         class : "relative bg--500 h-1/3 justify-between fji text-white"
     },[
@@ -189,8 +189,8 @@ function menuCotacte(contact) {
     messageEnCours.forEach(messageEnCour => {
         console.log('sms');
         console.log(messageEnCour.idAuteur === contactActif.id);
-        console.log(messageEnCour.idAuteur );
-        console.log(contactActif.id);
+        console.log('messageEnCour.idAuteur',messageEnCour.idAuteur );
+        console.log('contactActif:',contactActif.id);
         console.log('sms');
         sms = smsEvoie((messageEnCour.idAuteur === contactActif.id), ` ${messageEnCour.text} `);
         console.log('messageEnCour.text:',messageEnCour.text);
