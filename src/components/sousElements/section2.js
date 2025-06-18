@@ -1,6 +1,6 @@
 import { createElement,createDivRontPourIcon,afficherMessageAlert } from '../componant.js'
 import { popupMenu, popupFormulaire, popupPourContact,popupFormGroupe ,listeMembre} from './mesPoppup.js';
-import { chargerUsers,listerMembres,smsEvoie } from '../ui.js';
+import { chargerUsers,listerMembres } from '../ui.js';
 // import {  } from './section3.js';
 const div1Enfant1 = createElement('div',{
         class : "relative bg--500 h-1/3 justify-between fji text-white"
@@ -64,153 +64,9 @@ export const section2 = createElement('section',{
 
 
 
-export function contact(contact){
-    const photoContact = createElement('div',{
-        // class: ' h-16 w-16 rounded-full border border-gray-300 bg-[url(/profile2.png)] bg-cover bg-center bg-no-repeat'
-    },[
-        createElement('img', {
-            src: contact.image,
-            alt: 'Avatar',
-            class: 'h-16 w-16 rounded-full border border-gray-300 object-cover'
-        })
-    ])
-
-    let d2 = null;
-    if (contact.Prenom && contact.Nom) {
-        d2 = createElement('div',{
-            class: ' w-64 h-16 flex flex-col justify-around '
-        },[
-            createElement('div',{},contact.Prenom + ' ' +contact.Nom),
-            createElement('div',{},contact.numero)
-        ]);
-
-    } else {
-        d2 = createElement('div',{
-            class: ' w-64 h-16 flex flex-col justify-around '
-        },[
-            createElement('div',{},'' +contact.Nom),
-            // createElement('div',{},contact.numero)
-        ]);
-    }
-
-
-    const date = createElement('div',{
-        class: ' w-1/5 h-16 flex flex-col justify-around fji'
-    },[
-        createElement('div',{class: ' '},contact.heurNotif),
-        createElement('div',{
-            class: 'h-6 w-8 rounded-full bg-green-600 fji'
-        },contact.nomLue)
-    ])
-
-    return createElement('div',{
-        class : "text-white p-2 rounded-lg h-24 flex items-center cursor-pointer hover:bg-[#292A2A] ",
-        id: 'id_'+contact.id,
-        onclick: (event) => menuCotacte(contact)
-    },[
-        photoContact,
-        d2,
-        date,
-    ])
-}
 
 
 
-
-function menuCotacte(contact) {
-    const popup = document.querySelector('#popupPourContact');
-    popup.classList.remove('hidden');
-
-    alert(`Contact: ${contact.Prenom} ${contact.Nom} id_${contact.id}`);
-    localStorage.setItem('contactActif',JSON.stringify(contact));
-    // console.log('Contact actif:', localStorage.getItem('contactActif'));
-    localStorage.setItem('messageEnCours',JSON.stringify(contact.messages))
-    const contactActif = JSON.parse(localStorage.getItem('contactActif'));
-    console.log('Contact actif:', contactActif);
-
-
-
-
-    // Mettre à jour de la section 3
-    const image = document.querySelector('#image');
-    const nomPrenom = document.querySelector('#nomPrenom');
-    image.src = '/profile2.png'; // Remplacez par l'URL de l'image souhaitée
-    nomPrenom.textContent = contact.Nom; // Remplacez par le nom et prénom souhaités
-
-    listerMembres();
-
-    const supprimer = document.querySelector('#supprimer');
-    if (supprimer) {
-        // Pour éviter d'attacher plusieurs fois le même event listener :
-        supprimer.replaceWith(supprimer.cloneNode(true)); // clone et remplace
-        const nouveauSupprimer = document.querySelector('#supprimer');
-
-        nouveauSupprimer.addEventListener('click', () => {
-            // alert('Supprimer contact');
-            const mesContacts = document.querySelector('#mesContacts');
-            afficherMessageAlert('error',` ${contact.Nom}  Supprimer `,mesContacts)
-
-            // Supprimer du DOM
-            const contactElement = document.querySelector(`#id_${contact.id}`);
-            if (contactElement) {
-                contactElement.remove();
-            }
-
-            // Supprimer de JSON Server
-            fetch(`http://localhost:4025/users/${contact.id}`, {
-                method: 'DELETE'
-            })
-            .then(() => {
-                console.log(`Contact avec ID ${contact.id} supprimé du serveur.`);
-            })
-            .catch(err => {
-                console.error('Erreur de suppression côté serveur :', err);
-            });
-
-            // Cacher le popup
-            popup.classList.add('hidden');
-        });
-    }
-
-
-
-
-
-    const messageEnCours = JSON.parse(localStorage.getItem('messageEnCours'))
-
- 
-    
-    console.log('okk');
-    console.log('messageEnCours', messageEnCours);
-
-    const mesSMS = document.querySelector('#mesSMS');
-    mesSMS.innerHTML = '';
-    let sms = null
-    messageEnCours.forEach(messageEnCour => {
-        console.log('sms');
-        console.log(messageEnCour.idAuteur === contactActif.id);
-        console.log('messageEnCour.idAuteur',messageEnCour.idAuteur );
-        console.log('contactActif:',contactActif.id);
-        console.log('sms');
-        sms = smsEvoie((messageEnCour.idAuteur === contactActif.id), ` ${messageEnCour.text} `);
-        console.log('messageEnCour.text:',messageEnCour.text);
-        console.log('sms');
-        mesSMS.appendChild(sms);
-    });
-
-    // if (mesSMS) {
-    //     mesSMS.innerHTML = ''; // Vide le contenu précédent
-    //     const messages = smsEvoie(true,'Messsage envoyer')
-    //     mesSMS.appendChild(messages);
-    // } else {
-    //     console.error('L\'élément mesSMS n\'existe pas dans le DOM.');
-    // }
-
-
-
-
-
-}
 
 
 

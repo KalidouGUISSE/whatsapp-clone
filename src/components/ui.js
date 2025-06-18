@@ -1,15 +1,150 @@
-import { contact } from "./sousElements/section2.js";
+// import { contact } from "./sousElements/section2.js";
 
 import { createElement } from "./componant.js";
 // import { contact } from "./sousElements/contact.js";
 import { section2 } from "./sousElements/section2.js";
-
-const url = "http://localhost:4025"
-// const url = "https://whatsapp-back-djjl.onrender.com"
-
-
+import { afficherMessageAlert } from "./componant.js"
+// const url = "http://localhost:4025"
+const url = "https://whatsapp-back-djjl.onrender.com"
 
 
+
+
+export function contact(contact){
+    const photoContact = createElement('div',{
+        // class: ' h-16 w-16 rounded-full border border-gray-300 bg-[url(/profile2.png)] bg-cover bg-center bg-no-repeat'
+    },[
+        createElement('img', {
+            src: contact.image,
+            alt: 'Avatar',
+            class: 'h-16 w-16 rounded-full border border-gray-300 object-cover'
+        })
+    ])
+
+    let d2 = null;
+    if (contact.Prenom && contact.Nom) {
+        d2 = createElement('div',{
+            class: ' w-64 h-16 flex flex-col justify-around '
+        },[
+            createElement('div',{},contact.Prenom + ' ' +contact.Nom),
+            createElement('div',{},contact.numero)
+        ]);
+
+    } else {
+        d2 = createElement('div',{
+            class: ' w-64 h-16 flex flex-col justify-around '
+        },[
+            createElement('div',{},'' +contact.Nom),
+            // createElement('div',{},contact.numero)
+        ]);
+    }
+
+
+    const date = createElement('div',{
+        class: ' w-1/5 h-16 flex flex-col justify-around fji'
+    },[
+        createElement('div',{class: ' '},contact.heurNotif),
+        createElement('div',{
+            class: 'h-6 w-8 rounded-full bg-green-600 fji'
+        },contact.nomLue)
+    ])
+
+    return createElement('div',{
+        id: 'id_'+contact.id,
+        class : "text-white p-2 rounded-lg h-24 flex items-center cursor-pointer hover:bg-[#292A2A] ",
+        onclick: (event) => menuCotacte(contact)
+    },[
+        photoContact,
+        d2,
+        date,
+    ])
+}
+function menuCotacte(contact) {
+    const popup = document.querySelector('#popupPourContact');
+    popup.classList.remove('hidden');
+
+    alert(`Contact: ${contact.Prenom} ${contact.Nom} id_${contact.id}`);
+    localStorage.setItem('contactActif',JSON.stringify(contact));
+    // console.log('Contact actif:', localStorage.getItem('contactActif'));
+
+
+
+    localStorage.setItem('messageEnCours',JSON.stringify(contact.messages))
+    const contactActif = JSON.parse(localStorage.getItem('contactActif'));
+    console.log('Contact actif:', contactActif);
+
+
+
+    // Mettre à jour de la section 3
+    const image = document.querySelector('#image');
+    const nomPrenom = document.querySelector('#nomPrenom');
+    image.src = '/profile2.png'; // Remplacez par l'URL de l'image souhaitée
+    nomPrenom.textContent = contact.Nom; // Remplacez par le nom et prénom souhaités
+
+
+    //??
+    listerMembres();
+
+    const supprimer = document.querySelector('#supprimer');
+    if (supprimer) {
+        // Pour éviter d'attacher plusieurs fois le même event listener :
+        supprimer.replaceWith(supprimer.cloneNode(true)); // clone et remplace
+        const nouveauSupprimer = document.querySelector('#supprimer');
+
+        nouveauSupprimer.addEventListener('click', () => {
+            // alert('Supprimer contact');
+            const mesContacts = document.querySelector('#mesContacts');
+            afficherMessageAlert('error',` ${contact.Nom}  Supprimer `,mesContacts)
+
+            // Supprimer du DOM
+            const contactElement = document.querySelector(`#id_${contact.id}`);
+            if (contactElement) {
+                contactElement.remove();
+            }
+
+            // Supprimer de JSON Server
+            fetch(`https://whatsapp-back-djjl.onrender.com/users/${contact.id}`, {
+                method: 'DELETE'
+            })
+            .then(() => {
+                console.log(`Contact avec ID ${contact.id} supprimé du serveur.`);
+            })
+            .catch(err => {
+                console.error('Erreur de suppression côté serveur :', err);
+            });
+
+            // Cacher le popup
+            popup.classList.add('hidden');
+        });
+    }
+    nnn()
+
+
+
+
+}
+    function nnn(){
+        const contactActif = JSON.parse(localStorage.getItem('contactActif'));
+        console.log('Contact actif:', contactActif);
+        const mesSMStoUsers = JSON.parse(localStorage.getItem('mesSMStoUsers'))
+        const userJSON = localStorage.getItem('userConnecte');
+        const utilisateur = JSON.parse(userJSON); // conversion JSON → objet
+        fetch ('https://whatsapp-back-djjl.onrender.com/twoSMSUsers')
+        .then( r => r.json())
+        .then( r => {
+            const messagesDuContact = r.filter(
+                sms => ((sms.idAuteur === contactActif.id || sms.idRecepteur === contactActif.id) && (sms.idAuteur === utilisateur.id || sms.idRecepteur === utilisateur.id))
+            )
+            const mesSMS = document.querySelector('#mesSMS');
+            mesSMS.innerHTML = '';
+            let sms= null;
+            messagesDuContact.forEach(element => {
+                sms = smsEvoie((element.idAuteur === contactActif.id), ` ${element.text} `,element);
+                mesSMS.appendChild(sms);
+            });
+        })
+
+    }
 
 
 // chargerUsers(afficherContacts)
@@ -18,6 +153,13 @@ export async function chargerUsers(callback = afficherContacts) {
         const response = await fetch(url+'/users')
         const data = await response.json()
         localStorage.setItem('contacts', JSON.stringify(data))
+
+
+
+        // const aAfficher = data.filter(
+        //     utilisateur.id !==
+        // )
+
         callback(data)
         return data
     } catch (error) {
@@ -28,6 +170,8 @@ export async function chargerUsers(callback = afficherContacts) {
 }
 
 function afficherContacts(contacts,page = section2) {
+
+
     if (document.querySelector('#mesContacts')) {
         document.querySelector('#mesContacts').innerHTML = '';
         document.querySelector('#mesContacts').remove();
@@ -36,6 +180,7 @@ function afficherContacts(contacts,page = section2) {
     const domContacts = [];
 
     for (let i = 0; i < c ; i++ ){
+        // console.log('utilisateur:ttyvguhbj ',contacts.id)
         domContacts.push(contact( contacts[i] ))
     }
     const mesContacts = createElement('div', {
@@ -148,124 +293,142 @@ export async function listerMembres() {
 
 
 
-export function smsEvoie(x,sms){
-    if (x) {
-        return createElement('div',{
-            class: 'w-1/3 bg-[#144D37]/80 h-24 ml-auto rounded-lg mt-2 text-white p-3'
-        },[sms])
-    }
-    return createElement('div',{
-        class: 'w-1/3 bg-gray-500/30 h-24 rounded-lg mt-1 text-white p-3'
-    },[sms])
 
+
+
+
+
+
+
+
+
+
+
+const URL_SMS = "https://whatsapp-back-djjl.onrender.com/twoSMSUsers"
+
+// const URL_SMS = 'http://localhost:4025/twoSMSUsers'; // Change this if your endpoint differs
+
+export function smsEvoie(x, sms, messageData) {
+    const messageId = messageData.id ;
+
+    const messageDiv = createElement('div', {
+        class: `relative group ${x ? 'ml-auto w-1/3' : 'w-1/3'} ${messageData.epingle? 'bg-yellow-700/80' : ''}`,
+        id: messageId
+    }, [
+        createElement('div', {
+            class: `${x ? 'bg-[#144D37]/80 ml-auto' : 'bg-gray-500/30'} h-24 rounded-lg mt-2 text-white p-3 cursor-pointer relative`,
+            oncontextmenu: (e) => {
+                e.preventDefault();
+                showMenu(e, messageId, sms, messageData);
+            }
+        }, [
+            sms,
+            createElement('div', {
+                class: 'absolute -top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gray-700 rounded-full px-2 py-1 text-xs flex items-center space-x-1',
+            }, [
+                createElement('button', {
+                class: 'hover:bg-gray-600 rounded px-1',
+                onclick: (e) => showMenu(e, messageId, sms, messageData)
+                }, '^'),
+            ]),
+            createElement('div', {
+                class: `absolute bottom-1 ${x ? 'right-2' : 'left-2'} text-xs text-gray-400`
+            }, messageData?.date ? new Date(messageData.date).toLocaleTimeString() : '14:39')
+        ])
+    ]);
+
+    return messageDiv;
 }
 
+function showMenu(e, messageId, smsText, messageData) {
+  closeMenus();
+  const menu = createElement('div', {
+    class: 'context-menu fixed bg-[#2a2a2a] rounded-lg shadow-lg py-1 z-50 text-sm border border-gray-600',
+    style: { left: `${e.clientX}px`, top: `${e.clientY}px` }
+  }, [
+    menuItem('ℹ️', 'Infos du message', () => alert(`Contenu: ${smsText}`)),
+    menuItem('↩️', 'Modifier', () => modifierMessage(messageId, smsText, messageData)),
+    menuItem('📌', 'Épingler', () => epinglerMessage(messageId)),
+    menuItem('⭐', 'Marquer important', () => marquerImportant(messageId)),
+    menuItem('🗑️', 'Supprimer', () => supprimerMessage(messageId, messageData))
+  ]);
 
+  document.body.appendChild(menu);
+  setTimeout(() => document.addEventListener('click', closeMenus), 100);
+}
 
-// export async function afficherListeMembres(contactActif) {
-//     if (!contactActif.membres || contactActif.membres.length === 0) {
-//         alert("Aucun membre dans ce groupe.");
-//         return;
-//     }
+function menuItem(icon, text, onClick, textClass = 'text-gray-300') {
+  return createElement('div', {
+    class: `px-3 py-2 hover:bg-gray-700 cursor-pointer flex items-center ${textClass}`,
+    onclick: () => {
+      onClick();
+      closeMenus();
+    }
+  }, [
+    createElement('span', { class: 'mr-2' }, icon),
+    text
+  ]);
+}
 
-//     try {
-//         const allUsers = await chargerUsers(); // récupère tous les users
-//         const membres = allUsers.filter(user => contactActif.membres.includes(user.id));
+function closeMenus() {
+  document.querySelectorAll('.context-menu').forEach(menu => menu.remove());
+  document.removeEventListener('click', closeMenus);
+}
 
-//         // Crée une popup simple
-//         const popupMembres = createElement('div', {
-//             class: 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50'
-//         });
+function modifierMessage(messageId, oldText, messageData) {
+  const nouveauTexte = prompt('Modifier le message :', oldText);
+  if (nouveauTexte !== null) {
+    const messageDiv = document.getElementById(messageId);
+    const msgBubble = messageDiv?.querySelector('div');
+    if (msgBubble) msgBubble.childNodes[0].textContent = nouveauTexte;
 
-//         const contenu = createElement('div', {
-//             class: 'bg-white p-6 rounded-xl w-[90%] max-w-md shadow-lg relative flex flex-col gap-2'
-//         });
+    if (messageData?.id) {
+      fetch(`${URL_SMS}/${messageData.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: nouveauTexte })
+      }).then(r => r.ok && console.log('Message modifié.'));
+    }
+  }
+}
 
-//         const titre = createElement('h3', {
-//             class: 'text-lg font-bold mb-2 text-center'
-//         }, 'Membres du Groupe');
+function epinglerMessage(messageId) {
+    const el = document.getElementById(messageId);
+    if (el) el.classList.toggle('ring-2');
+  
+    // On récupère l'objet message d'abord pour connaître son état actuel
+    fetch(`${URL_SMS}/${messageId}`)
+      .then(response => response.json())
+      .then(message => {
+        // Inverser l'état de l'épingle
+        const nouvelEtatEpingle = !message.epingle;
+  
+        // On met à jour uniquement le champ "epingle"
+        return fetch(`${URL_SMS}/${messageId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ epingle: nouvelEtatEpingle })
+        });
+      })
+      .then(r => r.ok && console.log('Champ "epingle" mis à jour.'))
+      .catch(err => console.error('Erreur lors de l\'épinglage', err));
+  }
+  
 
-//         const btnFermer = createElement('button', {
-//             class: 'absolute top-2 right-3 text-xl text-red-500 hover:text-red-700',
-//             onclick: () => popupMembres.remove()
-//         }, '×');
+function marquerImportant(messageId) {
+  const el = document.getElementById(messageId);
+  if (el) el.classList.toggle('bg-yellow-800');
+}
 
-//         contenu.appendChild(titre);
-//         contenu.appendChild(btnFermer);
+function supprimerMessage(messageId, messageData) {
+    console.log('messageData',messageId)
+    
+    console.log('messageData',messageData.id)
+    const el = document.getElementById(messageId);
+    if (el) el.remove();
 
-//         // membres.forEach(m => {
-//         //     const div = createElement('div', {
-//         //         class: 'border rounded px-3 py-2 text-sm bg-gray-50'
-//         //     }, `${m.Prenom} ${m.Nom} (${m.numero})`);
-//         //     contenu.appendChild(div);
-//         // });
+      fetch(`${URL_SMS}/${messageData.id}`, {
+        method: 'DELETE'
+      }).then(r => r.ok && console.log('Message supprimé.'));
 
-//         popupMembres.appendChild(contenu);
-//         document.body.appendChild(popupMembres);
-
-//         membres.forEach(m => {
-//             const estAdmin = contactActif.Admin?.includes(m.id);
-        
-//             const div = createElement('div', {
-//                 class: 'border rounded px-3 py-2 text-sm bg-gray-50 flex justify-between items-center'
-//             });
-//             const texte = createElement('span', {}, `${m.Prenom} ${m.Nom} (${m.numero})`);
-            
-//             const texte2 = listerMembres(m);
-
-        
-//             const btnAdmin = createElement('button', {
-//                 class: `text-xs px-2 py-1 rounded ${
-//                     estAdmin ? 'bg-red-500 text-white' : 'bg-green-500 text-white'
-//                 }`,
-//                 onclick: async () => {
-//                     // Initialise le tableau Admin si vide
-//                     if (!Array.isArray(contactActif.Admin)) {
-//                         contactActif.Admin = [];
-//                     }
-        
-//                     if (estAdmin) {
-//                         // Supprimer l'admin
-//                         contactActif.Admin = contactActif.Admin.filter(id => id !== m.id);
-//                     } else {
-//                         // Ajouter comme admin
-//                         contactActif.Admin.push(m.id);
-//                     }
-        
-//                     // Sauvegarde dans localStorage
-//                     localStorage.setItem('contactActif', JSON.stringify(contactActif));
-        
-//                     // Mise à jour sur JSON Server
-//                     try {
-//                         const reponse = await fetch(`${url}/users/${contactActif.id}`, {
-//                             method: 'PATCH',
-//                             headers: { 'Content-Type': 'application/json' },
-//                             body: JSON.stringify({ Admin: contactActif.Admin })
-//                         });
-        
-//                         if (reponse.ok) {
-//                             alert(`Admin ${estAdmin ? 'retiré' : 'ajouté'} avec succès.`);
-//                             afficherListeMembres(contactActif); // Recharger pour voir l’état mis à jour
-//                         } else {
-//                             alert('Erreur lors de la mise à jour.');
-//                         }
-//                     } catch (err) {
-//                         console.error('Erreur JSON Server :', err);
-//                     }
-//                 }
-//             }, estAdmin ? 'Retirer admin' : 'Définir admin');
-        
-//             // div.appendChild(texte);
-//             // div.appendChild(texte1);
-//             div.appendChild(texte2);
-
-//             // div.appendChild(btnAdmin);
-//             contenu.appendChild(div);
-//         });
-
-//     } catch (err) {
-//         console.error('Erreur lors de la récupération des membres :', err);
-//         alert('Impossible de charger les membres.');
-//     }
-
-// }
+}

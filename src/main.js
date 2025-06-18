@@ -2,13 +2,13 @@ import './styles/style.css'
 import {container , charger, pageCharger} from  './components/element.js'
 import { createElement, afficherMessageAlert ,dagayeKhar} from './components/componant.js'
 import { formSection } from './components/sousElements/pageDeConnexion.js'
-import { section2 ,contact } from './components/sousElements/section2.js'
+import { section2 } from './components/sousElements/section2.js'
 import { popupFormGroupe, popupFormulaire } from './components/sousElements/mesPoppup.js'
-import { chargerUsers,smsEvoie } from './components/ui.js'
+import { chargerUsers,smsEvoie,contact } from './components/ui.js'
 // import { contact } from './components/ui.js'
 
-const url = "http://localhost:4025"
-// const url = "https://whatsapp-back-djjl.onrender.com"
+// const url = "http://localhost:4025"
+const url = "https://whatsapp-back-djjl.onrender.com"
 
 document.querySelector('body').appendChild(container)
 let contacts = [];
@@ -47,22 +47,39 @@ if (btnSeConecter) {
     
         if (utilisateurTrouve) {
             afficherMessageAlert('success', 'Connexion réussie, chargement en cours....', formSection);
-    
-            // Optionnel : enregistrer l’utilisateur connecté
-            localStorage.setItem('userConnecte', JSON.stringify(utilisateurTrouve));
-            console.log('oiuytd');
+ 
             
-            console.log('Utilisateur connecté :', localStorage.getItem('userConnecte'));
+            localStorage.setItem('userConnecte', JSON.stringify(utilisateurTrouve));
+           
+            // console.log('Utilisateur connecté :', localStorage.getItem('userConnecte'));
+            console.log('oiuytd');
+
+            fetch ('https://whatsapp-back-djjl.onrender.com/twoSMSUsers')
+                .then( r => r.json())
+                .then( r => {
+                        console.log('oiuytd');
+                        console.log(r);
+                        localStorage.setItem('mesSMStoUsers',JSON.stringify(r))
+                        console.log('oiuytd');
+                    })
             
             // Récupérer l'utilisateur et le stocker dans un tableau
             const userJSON = localStorage.getItem('userConnecte');
             const utilisateur = JSON.parse(userJSON); // conversion JSON → objet
+            // const userConnecte = document.querySelector('id_'+utilisateur.id)
+            // userConnecte.remove();
+            console.log('utilisateur: ',utilisateur)
+            console.log('utilisateur: ',utilisateur.id)
 
             tabUserConnecte.push(utilisateur); // ajouter l'utilisateur au tableau
-            console.log('oiuytd');
-
-            console.log('Utilisateur connecté :', tabUserConnecte[0].id);
-
+            console.log('hi');
+            console.log(utilisateurTrouve);
+            console.log('utilisateurTrouve :', utilisateurTrouve.id);
+            
+            console.log('hi');
+            console.log(tabUserConnecte);
+            console.log('tabUserConnecte :', tabUserConnecte[0].id);
+            console.log('hi');
             setTimeout(() => {
                 charger(true);
                 misAjours();
@@ -83,19 +100,17 @@ if (btnSeConecter) {
 
 
 
-
-
-
-
 // Fonction pour afficher le menu contextuel des trois points
 // a enlever apres
 // troisPoints() 
 // chargerUsers()
 
 function troisPoints() {
+    const userJSON = localStorage.getItem('userConnecte');
+    const utilisateur = JSON.parse(userJSON); // conversion JSON → objet
+    document.querySelector('#id_'+utilisateur.id).remove();
+
     const s2Icon3points = document.querySelector('#s2Icon3points').parentElement.parentElement;
-    // const grandParent = s2Icon3points.parentElement.parentElement;
-    
     if (s2Icon3points) {
         s2Icon3points.addEventListener('click', () => {
             const popupMenu = document.getElementById('popupMenu');
@@ -413,18 +428,13 @@ function troisPoints() {
 
         //pour eviter d'ajouter un message dans le dernier contacte reste qui reste dans le localstorage`
         const aucunMessage = document.querySelector('#aucunMessage');
-        if (aucunMessage) {
-            return
-        }
+        if (aucunMessage) return;
 
         const inputMessage = document.querySelector('#inputMessage');
         const message = inputMessage.value.trim();
         inputMessage.value = ''
 
-        if (message === '') {
-            // afficherMessageAlert('error', 'Le message ne peut pas être vide', document.querySelector('#section3'));
-            return;
-        }
+        if (message === '') return;
 
         const contactActif = JSON.parse(localStorage.getItem('contactActif'));
         // const messageEnCours = JSON.parse(localStorage.getItem('messageEnCours'))
@@ -433,40 +443,31 @@ function troisPoints() {
             id: Date.now().toString(),
             text: message,
             idAuteur: tabUserConnecte[0].id, 
+            idRecepteur: contactActif.id, 
             date: new Date().toISOString(),
-            lu: false 
+            lu: false,
+            epingle: false,
+            modifiable: true
         };
 
         const zoneMessage = document.querySelector('#zoneMessage')
         
-        zoneMessage.appendChild(smsEvoie(true,nouveauMessage.text))
+        zoneMessage.appendChild(smsEvoie(true,nouveauMessage.text,nouveauMessage))
         setTimeout(() => {
             zoneMessage.appendChild(smsEvoie(false,'message recue '))
         }, 2000);
 
-        // fetch(url+'/users/'+tabUserConnecte[0].id)
-        //     .then(r => r.json())
-        //     .then(r => console.log(r))
-        // 1. Récupérer les messages existants de contactActif
-        const userId = contactActif.id;
+        // const userId = contactActif.id;
 
         try {
-            const response = await fetch(`${url}/users/${userId}`);
-            const user = await response.json();
-
-            // 2. Ajouter le nouveau message à la liste
-            const nouveauxMessages = user.messages || [];
-            nouveauxMessages.push(nouveauMessage);
-
-            // 3. PATCH vers JSON Server pour mettre à jour les messages
-            const res = await fetch(`${url}/users/${userId}`, {
-                method: 'PATCH',
+            const res = await fetch(`${url}/twoSMSUsers`, {
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ messages: nouveauxMessages })
+                body: JSON.stringify(nouveauMessage)
             });
-
+        
             if (res.ok) {
                 console.log('Message enregistré avec succès dans db.json');
             } else {
@@ -500,20 +501,4 @@ function troisPoints() {
 
 
 
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
